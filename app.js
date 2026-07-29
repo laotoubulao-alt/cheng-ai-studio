@@ -29,6 +29,13 @@ const providers = {
     types: ["text", "image"],
     models: ["gpt-5-mini", "gpt-4.1-mini", "gpt-image-1"],
   },
+  pollinations: {
+    name: "Pollinations（免费生图）",
+    endpoint: "",
+    types: ["image"],
+    noKey: true,
+    models: ["flux"],
+  },
   openrouter: {
     name: "OpenRouter",
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
@@ -224,6 +231,7 @@ const defaultModels = {
   },
   deepseek: { text: ["deepseek-chat", "deepseek-reasoner"] },
   openai: { text: ["gpt-5-mini", "gpt-4.1-mini"], image: ["gpt-image-1"] },
+  pollinations: { image: ["flux"] },
   lingke: { text: ["填写 Key 后点击 ↻ 读取灵客模型"] },
   custom: {
     text: ["custom-model"],
@@ -842,6 +850,35 @@ async function runNode(n) {
     render();
     return toast("上游素材已汇总");
   }
+  if (n.type === "image" && n.provider === "pollinations") {
+    const upstream = state.links
+      .filter((l) => l.to === n.id)
+      .map((l) => state.nodes.find((x) => x.id === l.from)?.output)
+      .filter((x) => x && !x.startsWith("http"))
+      .join("\n");
+    const input = [n.prompt, upstream || state.project.idea]
+      .filter(Boolean)
+      .join("\n\n上游内容：\n");
+    if (!input) return toast("请先填写图片提示词或上游内容");
+    const [width, height] = (n.imageSize || "1024x1024").split("x");
+    n.inputUsed = input;
+    n.output =
+      "https://image.pollinations.ai/prompt/" +
+      encodeURIComponent(input) +
+      `?model=${encodeURIComponent(n.model || "flux")}&width=${width}&height=${height}&nologo=true&seed=${Date.now()}`;
+    n.imageMeta = "免费接口 · 无需 API Key";
+    n.status = "完成";
+    state.assets.push({
+      id: Date.now(),
+      name: `${seqText(n)}-${n.title}`,
+      image: n.output,
+      nodeId: n.id,
+    });
+    save();
+    render();
+    renderAssets();
+    return toast("免费图片已生成");
+  }
   if (n.type === "txt") {
     n.output = n.prompt;
     n.status = "完成";
@@ -973,6 +1010,13 @@ async function runNode(n) {
   render();
   renderAssets();
 }
+const costConfig = {
+  pollinations: "免费 · 无需 API Key",
+  silicon: "按量收费 · 新用户或活动可能赠送额度",
+  deepseek: "按量收费",
+  openai: "按量收费",
+  custom: "费用由所填服务商决定",
+};
 const baseRenderInspector = renderInspector;
 renderInspector = function () {
   baseRenderInspector();
@@ -980,6 +1024,7 @@ renderInspector = function () {
   if (!n) return;
   const isVideo = n.type === "video",
     isImage = n.type === "image";
+  const provider = providers[n.provider] || {};
   $("#videoSettings").hidden = !isVideo;
   $("#imageSettings").hidden = !isImage;
   if (!$("#endpointHelp"))
@@ -987,6 +1032,17 @@ renderInspector = function () {
       "beforeend",
       '<div id="endpointHelp" class="endpoint-help"></div>',
     );
+  if (!$("#providerCost"))
+    $("#aiSettings").insertAdjacentHTML(
+      "afterbegin",
+      '<div id="providerCost" class="provider-cost"></div>',
+    );
+  $("#providerCost").textContent =
+    costConfig[n.provider] || "按量收费或含平台赠送额度 · 以平台账户为准";
+  $("#endpoint").closest("label").hidden = !!provider.noKey;
+  $("#apiKey").closest("label").hidden = !!provider.noKey;
+  $("#loadModels").hidden = !!provider.noKey;
+  $("#testApi").hidden = !!provider.noKey;
   const usage =
     n.type === "text"
       ? "文本接口：生成剧本、分镜和提示词"
@@ -1710,12 +1766,16 @@ const balanceConfig = {
   custom: null,
 };
 function renderApiList() {
-  $("#apiList").innerHTML = Object.entries(providers)
-    .map(
-      ([k, p]) =>
-        `<div class="api-account"><strong>${esc(p.name)}</strong><input type="password" data-key="${k}" value="${esc(sessionStorage.getItem("key_" + k) || "")}" placeholder="${esc(p.name)} API Key"><button data-balance="${k}">查余额</button><div class="api-balance" data-balance-result="${k}">${balanceConfig[k] ? "填写 Key 后可查询" : "该平台未提供可用的余额接口"}</div></div>`,
+  const accounts = Object.entries(providers)
+    .map(([k, p]) =>
+      p.noKey
+        ? `<div class="api-account"><strong>${esc(p.name)}</strong><div class="api-balance ok">${esc(costConfig[k] || "免费 · 无需 Key")}</div></div>`
+        : `<div class="api-account"><strong>${esc(p.name)}</strong><input type="password" data-key="${k}" value="${esc(sessionStorage.getItem("key_" + k) || "")}" placeholder="${esc(p.name)} API Key">${balanceConfig[k] ? `<button data-balance="${k}">查余额</button>` : ""}<div class="api-balance" data-balance-result="${k}">${balanceConfig[k] ? "填写 Key 后可自动查询" : "平台无余额 API，可在下方手动记录"}</div><input data-quota="${k}" value="${esc(localStorage.getItem("quota_" + k) || "")}" placeholder="手动记录额度/预算，例如：¥50 或 1000 credits"></div>`,
     )
     .join("");
+  $("#apiList").innerHTML =
+    accounts +
+    '<div class="api-account"><strong>Agnes 免费图片/视频</strong><div class="api-balance ok">网页端免费工具 · 未发现公开 API，不能在节点内自动调用</div><button data-free-tool="https://app.agnes-ai.com">打开 Agnes</button></div>';
   $$("[data-key]").forEach(
     (e) =>
       (e.oninput = () =>
@@ -1723,6 +1783,15 @@ function renderApiList() {
   );
   $$("[data-balance]").forEach(
     (b) => (b.onclick = () => checkBalance(b.dataset.balance)),
+  );
+  $$("[data-quota]").forEach(
+    (e) =>
+      (e.oninput = () =>
+        localStorage.setItem("quota_" + e.dataset.quota, e.value)),
+  );
+  $$("[data-free-tool]").forEach(
+    (b) =>
+      (b.onclick = () => window.open(b.dataset.freeTool, "_blank", "noopener")),
   );
 }
 async function checkBalance(provider) {
