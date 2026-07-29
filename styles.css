@@ -11,3 +11,4 @@
 #canvas .node{pointer-events:auto}
 .flow-note{color:var(--muted);font-size:9px;white-space:nowrap}
 .flow-error{color:var(--danger);font-weight:700;font-size:9px}
+.api-account{display:grid;grid-template-columns:100px minmax(180px,1fr) 74px;gap:6px;align-items:center;padding:9px;border:1px solid var(--line);background:var(--paper);border-radius:5px}.api-account strong{font-size:10px}.api-account input{min-width:0;width:100%;padding:7px;border:1px solid var(--line);background:#fff}.api-account button{height:31px}.api-balance{grid-column:2/4;min-height:18px;font-size:9px;color:var(--muted)}.api-balance.ok{color:var(--teal);font-weight:700}.api-balance.error{color:var(--danger)}#apiDialog{width:min(620px,90vw)}#apiList{display:grid;gap:8px}
