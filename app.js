@@ -25,8 +25,77 @@ const providers = {
 };
 const defaultModels = {
   silicon: {
-    text: ["填写 Key 后点击 ↻ 读取硅基文本模型"],
-    image: ["Kwai-Kolors/Kolors"],
+    text: [
+      "ByteDance-Seed/Seed-OSS-36B-Instruct",
+      "deepseek-ai/DeepSeek-OCR",
+      "deepseek-ai/DeepSeek-R1",
+      "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+      "deepseek-ai/DeepSeek-V3",
+      "deepseek-ai/DeepSeek-V3.1-Terminus",
+      "deepseek-ai/DeepSeek-V3.2",
+      "deepseek-ai/DeepSeek-V4-Flash",
+      "deepseek-ai/DeepSeek-V4-Pro",
+      "inclusionAI/Ling-flash-2.0",
+      "inclusionAI/Ling-mini-2.0",
+      "meituan-longcat/LongCat-2.0",
+      "MiniMaxAI/MiniMax-M2.5",
+      "moonshotai/Kimi-K2.7-Code",
+      "nex-agi/Nex-N2-Pro",
+      "PaddlePaddle/PaddleOCR-VL-1.5",
+      "Pro/deepseek-ai/DeepSeek-R1",
+      "Pro/deepseek-ai/DeepSeek-V3",
+      "Pro/deepseek-ai/DeepSeek-V3.1-Terminus",
+      "Pro/deepseek-ai/DeepSeek-V3.2",
+      "Pro/MiniMaxAI/MiniMax-M2.5",
+      "Pro/moonshotai/Kimi-K2.6",
+      "Pro/Qwen/Qwen2.5-7B-Instruct",
+      "Pro/zai-org/GLM-5.1",
+      "Qwen/Qwen2.5-14B-Instruct",
+      "Qwen/Qwen2.5-32B-Instruct",
+      "Qwen/Qwen2.5-72B-Instruct",
+      "Qwen/Qwen2.5-72B-Instruct-128K",
+      "Qwen/Qwen2.5-7B-Instruct",
+      "Qwen/Qwen3.5-122B-A10B",
+      "Qwen/Qwen3.5-27B",
+      "Qwen/Qwen3.5-35B-A3B",
+      "Qwen/Qwen3.5-397B-A17B",
+      "Qwen/Qwen3.5-4B",
+      "Qwen/Qwen3.5-9B",
+      "Qwen/Qwen3.6-27B",
+      "Qwen/Qwen3.6-35B-A3B",
+      "Qwen/Qwen3-14B",
+      "Qwen/Qwen3-30B-A3B-Instruct-2507",
+      "Qwen/Qwen3-32B",
+      "Qwen/Qwen3-8B",
+      "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "Qwen/Qwen3-Omni-30B-A3B-Captioner",
+      "Qwen/Qwen3-Omni-30B-A3B-Instruct",
+      "Qwen/Qwen3-Omni-30B-A3B-Thinking",
+      "Qwen/Qwen3-VL-30B-A3B-Instruct",
+      "Qwen/Qwen3-VL-30B-A3B-Thinking",
+      "Qwen/Qwen3-VL-32B-Instruct",
+      "Qwen/Qwen3-VL-32B-Thinking",
+      "Qwen/Qwen3-VL-8B-Instruct",
+      "Qwen/Qwen3-VL-8B-Thinking",
+      "stepfun-ai/Step-3.5-Flash",
+      "tencent/Hunyuan-A13B-Instruct",
+      "tencent/Hunyuan-MT-7B",
+      "THUDM/GLM-4-32B-0414",
+      "THUDM/GLM-4-9B-0414",
+      "THUDM/GLM-Z1-9B-0414",
+      "zai-org/GLM-4.5-Air",
+      "zai-org/GLM-4.5V",
+      "zai-org/GLM-5.2",
+    ],
+    image: [
+      "Kwai-Kolors/Kolors",
+      "baidu/ERNIE-Image-Turbo",
+      "Qwen/Qwen-Image",
+      "Qwen/Qwen-Image-Edit",
+      "Qwen/Qwen-Image-Edit-2509",
+      "Tongyi-MAI/Z-Image",
+      "Tongyi-MAI/Z-Image-Turbo",
+    ],
     video: ["Wan-AI/Wan2.2-I2V-A14B", "Wan-AI/Wan2.2-T2V-A14B"],
   },
   deepseek: { text: ["deepseek-chat", "deepseek-reasoner"] },
@@ -39,9 +108,11 @@ const defaultModels = {
   },
 };
 const modelsFor = (provider, type) => {
+  if (type === "check") type = "text";
+  if (type === "txt" || type === "output") return [];
   try {
     const cached = JSON.parse(
-      sessionStorage.getItem("models_" + provider + "_" + type) || "null",
+      sessionStorage.getItem("models_v2_" + provider + "_" + type) || "null",
     );
     if (Array.isArray(cached) && cached.length) return cached;
   } catch {}
@@ -227,7 +298,9 @@ function render() {
     const model =
         n.type === "txt"
           ? "本地文本 · 无需 API"
-          : `${providers[n.provider]?.name || n.provider} · ${n.model}`,
+          : n.type === "output"
+            ? "自动汇总 · 无需 API"
+            : `${providers[n.provider]?.name || n.provider} · ${n.model}`,
       inline =
         n.type === "txt"
           ? `<textarea class="node-text" placeholder="直接在节点里输入文字……">${esc(n.prompt || "")}</textarea>`
@@ -476,14 +549,16 @@ function renderInspector() {
   $("#nodeEditor").hidden = !n;
   if (!n) return;
   const isTxt = n.type === "txt",
+    isOutput = n.type === "output",
     isImage = n.type === "image";
   $("#nodeType").textContent =
     `${seqText(n)} · ${(types.find((x) => x[0] === n.type)?.[1] || n.type).toUpperCase()}`;
   $("#nodeTitle").textContent = n.title;
   $("#nodeName").value = n.title;
-  $("#aiSettings").hidden = isTxt;
+  $("#aiSettings").hidden = isTxt || isOutput;
   $("#imageSettings").hidden = !isImage;
-  $("#testApi").hidden = isTxt;
+  $("#testApi").hidden = isTxt || isOutput;
+  $("#runNode").textContent = isOutput ? "汇总上游素材" : "▶ 运行节点";
   $("#promptLabel").textContent = isTxt
     ? "TXT 文本内容"
     : isImage
@@ -591,7 +666,8 @@ async function loadModels() {
     const mediaIds = new Set([...imageModels, ...videoModels].map((x) => x.id));
     const textModels = all.filter((x) => !mediaIds.has(x.id));
     const groups = { image: imageModels, video: videoModels, text: textModels };
-    const list = [...new Set((groups[n.type] || all).map((x) => x.id))].sort(
+    const modality = n.type === "check" ? "text" : n.type;
+    const list = [...new Set((groups[modality] || all).map((x) => x.id))].sort(
       (a, b) => a.localeCompare(b),
     );
     if (!list.length) throw Error("接口成功，但没有返回适合当前节点的模型");
@@ -607,13 +683,13 @@ async function loadModels() {
         a.localeCompare(b),
       );
       sessionStorage.setItem(
-        "models_" + n.provider + "_" + type,
+        "models_v2_" + n.provider + "_" + type,
         JSON.stringify(ids),
       );
     });
     renderInspector();
     $("#output").textContent =
-      `连接成功：平台共返回 ${all.length} 个模型，当前${n.type === "image" ? "生图" : n.type === "video" ? "生视频" : "文本"}节点显示 ${list.length} 个。`;
+      `连接成功：平台共返回 ${all.length} 个模型，当前${modality === "image" ? "生图" : modality === "video" ? "生视频" : "文本"}节点显示 ${list.length} 个。`;
     save();
     toast(`已加载 ${list.length} 个模型`);
   } catch (e) {
@@ -626,6 +702,20 @@ async function loadModels() {
 }
 async function runNode(n) {
   if (!n) return;
+  if (n.type === "output") {
+    const upstream = state.links
+      .filter((l) => l.to === n.id)
+      .map((l) => state.nodes.find((x) => x.id === l.from))
+      .filter(Boolean);
+    n.output = upstream
+      .map((x) => x.output)
+      .filter(Boolean)
+      .join("\n");
+    n.status = "完成";
+    save();
+    render();
+    return toast("上游素材已汇总");
+  }
   if (n.type === "txt") {
     n.output = n.prompt;
     n.status = "完成";
