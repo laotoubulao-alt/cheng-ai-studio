@@ -4,24 +4,148 @@ const providers = {
   silicon: {
     name: "硅基流动",
     endpoint: "https://api.siliconflow.cn/v1/chat/completions",
+    modelsEndpoint: "https://api.siliconflow.cn/v1/models",
+    types: ["text", "image", "video"],
     models: ["填写 Key 后点击 ↻"],
   },
   lingke: {
     name: "灵客 AI",
     endpoint: "https://api.lingkeai.ai/v1/chat/completions",
+    modelsEndpoint: "https://api.lingkeai.ai/v1/models",
+    types: ["text"],
     models: ["填写 Key 后点击 ↻"],
   },
   deepseek: {
     name: "DeepSeek",
     endpoint: "https://api.deepseek.com/chat/completions",
+    modelsEndpoint: "https://api.deepseek.com/models",
+    types: ["text"],
     models: ["deepseek-chat", "deepseek-reasoner"],
   },
   openai: {
     name: "OpenAI",
     endpoint: "https://api.openai.com/v1/chat/completions",
+    modelsEndpoint: "https://api.openai.com/v1/models",
+    types: ["text", "image"],
     models: ["gpt-5-mini", "gpt-4.1-mini", "gpt-image-1"],
   },
-  custom: { name: "自定义兼容 API", endpoint: "", models: ["custom-model"] },
+  openrouter: {
+    name: "OpenRouter",
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    modelsEndpoint: "https://openrouter.ai/api/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  google: {
+    name: "Google Gemini",
+    endpoint:
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    modelsEndpoint:
+      "https://generativelanguage.googleapis.com/v1beta/openai/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  anthropic: {
+    name: "Anthropic Claude（兼容网关）",
+    endpoint: "",
+    types: ["text"],
+    models: ["claude-sonnet-4-5", "claude-opus-4-1"],
+  },
+  xai: {
+    name: "xAI Grok",
+    endpoint: "https://api.x.ai/v1/chat/completions",
+    modelsEndpoint: "https://api.x.ai/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  groq: {
+    name: "Groq",
+    endpoint: "https://api.groq.com/openai/v1/chat/completions",
+    modelsEndpoint: "https://api.groq.com/openai/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  together: {
+    name: "Together AI",
+    endpoint: "https://api.together.xyz/v1/chat/completions",
+    modelsEndpoint: "https://api.together.xyz/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  mistral: {
+    name: "Mistral AI",
+    endpoint: "https://api.mistral.ai/v1/chat/completions",
+    modelsEndpoint: "https://api.mistral.ai/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  perplexity: {
+    name: "Perplexity",
+    endpoint: "https://api.perplexity.ai/chat/completions",
+    types: ["text"],
+    models: ["sonar", "sonar-pro"],
+  },
+  moonshot: {
+    name: "Moonshot / Kimi",
+    endpoint: "https://api.moonshot.cn/v1/chat/completions",
+    modelsEndpoint: "https://api.moonshot.cn/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  zhipu: {
+    name: "智谱 BigModel",
+    endpoint: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+    modelsEndpoint: "https://open.bigmodel.cn/api/paas/v4/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  dashscope: {
+    name: "阿里云百炼 / 通义",
+    endpoint:
+      "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    modelsEndpoint: "https://dashscope.aliyuncs.com/compatible-mode/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  ark: {
+    name: "火山引擎方舟 / 豆包",
+    endpoint: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    modelsEndpoint: "https://ark.cn-beijing.volces.com/api/v3/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  minimax: {
+    name: "MiniMax",
+    endpoint: "https://api.minimax.chat/v1/text/chatcompletion_v2",
+    types: ["text"],
+    models: ["MiniMax-M2.5"],
+  },
+  stepfun: {
+    name: "阶跃星辰 StepFun",
+    endpoint: "https://api.stepfun.com/v1/chat/completions",
+    modelsEndpoint: "https://api.stepfun.com/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  baichuan: {
+    name: "百川智能",
+    endpoint: "https://api.baichuan-ai.com/v1/chat/completions",
+    types: ["text"],
+    models: ["Baichuan4"],
+  },
+  yi: {
+    name: "零一万物 Yi",
+    endpoint: "https://api.lingyiwanwu.com/v1/chat/completions",
+    modelsEndpoint: "https://api.lingyiwanwu.com/v1/models",
+    types: ["text"],
+    models: ["填写 Key 后点击 ↻"],
+  },
+  custom: {
+    name: "自定义 OpenAI 兼容 API",
+    endpoint: "",
+    types: ["text", "image"],
+    models: ["custom-model"],
+  },
 };
 const defaultModels = {
   silicon: {
@@ -117,10 +241,16 @@ const modelsFor = (provider, type) => {
     if (Array.isArray(cached) && cached.length) return cached;
   } catch {}
   return [
-    ...(defaultModels[provider]?.[type] || [
-      `该平台暂不支持${type === "image" ? "图片" : type === "video" ? "视频" : "此类"}节点`,
-    ]),
+    ...(defaultModels[provider]?.[type] ||
+      providers[provider]?.models || ["填写 Key 后点击 ↻"]),
   ];
+};
+const nodeModality = (type) => (type === "check" ? "text" : type);
+const providersFor = (type) => {
+  const modality = nodeModality(type);
+  return Object.entries(providers).filter(([, p]) =>
+    p.types?.includes(modality),
+  );
 };
 const types = [
   ["txt", "TXT 文本", "本地输入想法、剧本或任意文字"],
@@ -171,9 +301,11 @@ const canvas = $("#canvas"),
 const apiEndpoint = (n) =>
   n?.provider === "silicon" && n?.type === "image"
     ? "https://api.siliconflow.cn/v1/images/generations"
-    : n?.provider === "silicon" && n?.type === "video"
-      ? "https://api.siliconflow.cn/v1/video/submit"
-      : providers[n?.provider]?.endpoint || n?.endpoint || "";
+    : n?.provider === "openai" && n?.type === "image"
+      ? "https://api.openai.com/v1/images/generations"
+      : n?.provider === "silicon" && n?.type === "video"
+        ? "https://api.siliconflow.cn/v1/video/submit"
+        : providers[n?.provider]?.endpoint || n?.endpoint || "";
 const seqText = (n) =>
   String(n.seq || state.nodes.indexOf(n) + 1).padStart(2, "0");
 function toast(t) {
@@ -385,7 +517,7 @@ function renderFlow() {
         plan.ordered
           .map(
             (n, i) =>
-              `${i ? '<span class="flow-arrow">→</span>' : ""}<button class="flow-step" data-flow="${n.id}"><b>${seqText(n)}</b>${esc(n.title)}</button>`,
+              `${i ? '<span class="flow-arrow">→</span>' : ""}<button class="flow-step ${n.status === "完成" ? "done" : n.status === "运行中" ? "active" : ""}" data-flow="${n.id}"><b>${n.status === "完成" ? "✓" : seqText(n)}</b>${esc(n.title)}</button>`,
           )
           .join("")
       : '<span class="flow-note">添加并连接节点后，这里会显示真实运行顺序</span>';
@@ -574,7 +706,7 @@ function renderInspector() {
     : isImage
       ? "例如：写实电影感，雨夜古墓入口，探险者手持矿灯，低饱和冷色"
       : "例如：你是专业编剧，根据输入生成三幕式剧本，只输出 JSON。";
-  $("#provider").innerHTML = Object.entries(providers)
+  $("#provider").innerHTML = providersFor(n.type)
     .map(
       ([k, p]) =>
         `<option value="${k}" ${k === n.provider ? "selected" : ""}>${p.name}</option>`,
@@ -626,14 +758,8 @@ async function loadModels() {
     $("#output").textContent = "请先填写 API Key，再点击读取模型。";
     return toast("请先填写 API Key");
   }
-  const bases = {
-    silicon: "https://api.siliconflow.cn/v1/models",
-    lingke: "https://api.lingkeai.ai/v1/models",
-    deepseek: "https://api.deepseek.com/models",
-    openai: "https://api.openai.com/v1/models",
-  };
-  const url = bases[n.provider];
-  if (!url) return toast("该平台使用预设模型");
+  const url = providers[n.provider]?.modelsEndpoint;
+  if (!url) return toast("该平台使用预设模型；可直接选择或填写自定义模型");
   $("#output").textContent =
     "正在连接 " + providers[n.provider].name + " 并读取模型列表…";
   try {
@@ -746,23 +872,38 @@ async function runNode(n) {
         .map((l) => state.nodes.find((x) => x.id === l.from)?.output)
         .filter((x) => x && !x.startsWith("http"))
         .join("\n"),
-      input = n.prompt || upstream || state.project.idea;
+      input = [n.prompt, upstream || state.project.idea]
+        .filter(Boolean)
+        .join("\n\n上游内容：\n");
     if (!input)
       throw Error(
         "没有图片提示词。请在节点、上游 TXT 节点或左侧核心创意中至少填写一处。",
       );
+    n.inputUsed = input;
     const endpoint = isImage ? apiEndpoint(n) : n.endpoint,
       body = isImage
-        ? {
-            model: n.model,
-            prompt: input,
-            negative_prompt:
-              n.negativePrompt || "模糊，低清晰度，水印，文字，畸形",
-            image_size: n.imageSize || "1024x1024",
-            batch_size: 1,
-            num_inference_steps: 20,
-            guidance_scale: 7.5,
-          }
+        ? n.provider === "openai"
+          ? {
+              model: n.model,
+              prompt: input,
+              size:
+                n.imageSize === "1664x928"
+                  ? "1536x1024"
+                  : n.imageSize === "928x1664"
+                    ? "1024x1536"
+                    : "1024x1024",
+              n: 1,
+            }
+          : {
+              model: n.model,
+              prompt: input,
+              negative_prompt:
+                n.negativePrompt || "模糊，低清晰度，水印，文字，畸形",
+              image_size: n.imageSize || "1024x1024",
+              batch_size: 1,
+              num_inference_steps: 20,
+              guidance_scale: 7.5,
+            }
         : {
             model: n.model,
             messages: [
@@ -802,7 +943,12 @@ async function runNode(n) {
       );
     }
     if (isImage) {
-      const url = d.images?.[0]?.url || d.data?.[0]?.url;
+      const url =
+        d.images?.[0]?.url ||
+        d.data?.[0]?.url ||
+        (d.data?.[0]?.b64_json
+          ? "data:image/png;base64," + d.data[0].b64_json
+          : "");
       if (!url) throw Error("平台返回成功，但响应中没有图片地址。");
       n.output = url;
       n.imageMeta = `耗时 ${Math.round((Date.now() - started) / 1000)} 秒${d.seed !== undefined ? ` · Seed ${d.seed}` : ""}`;
@@ -887,13 +1033,16 @@ runNode = async function (n) {
     image = upstreamNodes.find(
       (x) => x.type === "image" && x.output?.startsWith("http"),
     )?.output,
-    prompt =
-      n.prompt ||
+    prompt = [
+      n.prompt,
       upstreamNodes
-        .map((x) => x.prompt || x.output)
+        .map((x) => x.inputUsed || x.prompt || x.output)
         .filter((x) => x && !x.startsWith("http"))
-        .join("\n") ||
-      state.project.idea;
+        .join("\n"),
+      state.project.idea,
+    ]
+      .filter(Boolean)
+      .join("\n\n上游内容：\n");
   if (!prompt) {
     n.status = "失败";
     n.output = "视频生成失败\n原因：没有视频提示词或上游内容。";
@@ -1243,7 +1392,104 @@ function loadLearningTemplate() {
   renderAssets();
   toast("学习模板已载入，不会自动运行");
 }
-$("#loadTemplate").onclick = loadLearningTemplate;
+function loadAutomationTemplate() {
+  if (
+    state.nodes.length &&
+    !confirm("将在当前画布载入 8 步自动化流程，确定继续吗？")
+  )
+    return;
+  const steps = [
+    [
+      "requirements",
+      "txt",
+      "第 1 步 · 需求",
+      "写下题材、受众、时长、画面比例、人物和核心冲突。",
+    ],
+    [
+      "outline",
+      "text",
+      "第 2 步 · 大纲",
+      "根据需求生成完整故事大纲，明确开端、发展、高潮和结局。",
+    ],
+    [
+      "design",
+      "text",
+      "第 3 步 · 角色、场景与道具设计",
+      "整理角色外貌与服装、场景空间与光线、关键道具细节，保证后续一致。",
+    ],
+    [
+      "designImage",
+      "image",
+      "第 4 步 · 角色、场景与道具图",
+      "生成角色全身设定、主要场景和关键道具的统一视觉设定图。",
+    ],
+    [
+      "storyboard",
+      "text",
+      "第 5 步 · 分镜脚本",
+      "结合大纲和视觉设定输出分镜脚本，每镜包含画面、台词、动作、景别、机位和时长。",
+    ],
+    [
+      "keyframe",
+      "image",
+      "第 6 步 · 关键帧",
+      "根据分镜脚本生成电影感关键帧，保持人物、服装、场景和道具一致。",
+    ],
+    [
+      "shotVideo",
+      "video",
+      "第 7 步 · 分镜视频",
+      "根据关键帧和分镜脚本生成镜头，动作自然，运镜稳定，保持主体一致。",
+    ],
+    [
+      "final",
+      "output",
+      "第 8 步 · 成片导出",
+      "汇总全部上游图片、视频和文本素材。",
+    ],
+  ];
+  state.nodes = steps.map(([id, type, title, prompt], index) => {
+    const n = {
+      id,
+      type,
+      seq: index + 1,
+      title,
+      prompt,
+      x: 40 + (index % 4) * 245,
+      y: 130 + Math.floor(index / 4) * 220,
+      provider: type === "txt" || type === "output" ? "custom" : "silicon",
+      model:
+        type === "txt"
+          ? "本地文本"
+          : type === "image"
+            ? "Kwai-Kolors/Kolors"
+            : type === "video"
+              ? "Wan-AI/Wan2.2-I2V-A14B"
+              : type === "output"
+                ? "自动汇总"
+                : "deepseek-ai/DeepSeek-V4-Flash",
+      endpoint: "",
+      negativePrompt: "模糊，变形，水印，文字",
+      imageSize: "1664x928",
+      videoSize: "1280x720",
+      output: "",
+      status: "等待",
+    };
+    n.endpoint = type === "txt" || type === "output" ? "" : apiEndpoint(n);
+    return n;
+  });
+  state.links = steps
+    .slice(1)
+    .map((step, index) => ({ from: steps[index][0], to: step[0] }));
+  state.assets = [];
+  state.selected = "requirements";
+  state.selectedLink = null;
+  save();
+  render();
+  renderAssets();
+  toast("8 步自动化流程已搭建，从第 1 步开始填写即可");
+}
+$("#loadTemplate").onclick = loadAutomationTemplate;
 $("#provider").onchange = () => {
   const n = state.nodes.find((x) => x.id === state.selected);
   n.provider = $("#provider").value;
