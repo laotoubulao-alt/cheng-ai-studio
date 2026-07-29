@@ -571,18 +571,29 @@ async function loadModels() {
       d = { message: text };
     }
     if (!r.ok) throw Error(d.error?.message || d.message || `HTTP ${r.status}`);
-    const raw = Array.isArray(d) ? d : d.data || [],
-      all = raw
-        .map((x) => (typeof x === "string" ? { id: x } : x))
-        .filter((x) => x.id),
-      imagePattern = /(Kolors|FLUX|stable-diffusion|Qwen-Image|HiDream|image)/i;
-    let list = (
-      n.type === "image"
-        ? all.filter((x) => x.type === "image" || imagePattern.test(x.id))
-        : all.filter((x) => x.type !== "image" && !imagePattern.test(x.id))
-    ).map((x) => x.id);
-    if (n.type === "image" && !list.length)
-      list = all.filter((x) => imagePattern.test(x.id)).map((x) => x.id);
+    const raw = Array.isArray(d) ? d : d.data || [];
+    const all = raw
+      .map((x) => (typeof x === "string" ? { id: x } : x))
+      .filter((x) => x.id);
+    const descriptor = (x) =>
+      [x.id, x.type, x.task, x.pipeline_tag, x.model_type]
+        .filter(Boolean)
+        .join(" ");
+    const imagePattern =
+      /(image|text.to.image|img2img|kolors|flux|stable.?diffusion|sdxl|qwen.?image|hidream|playground|dreamshaper)/i;
+    const videoPattern =
+      /(video|text.to.video|image.to.video|i2v|t2v|wan\d|cogvideo|hunyuanvideo|ltx.?video|mochi|svd)/i;
+    const imageModels = all.filter(
+      (x) =>
+        imagePattern.test(descriptor(x)) && !videoPattern.test(descriptor(x)),
+    );
+    const videoModels = all.filter((x) => videoPattern.test(descriptor(x)));
+    const mediaIds = new Set([...imageModels, ...videoModels].map((x) => x.id));
+    const textModels = all.filter((x) => !mediaIds.has(x.id));
+    const groups = { image: imageModels, video: videoModels, text: textModels };
+    const list = [...new Set((groups[n.type] || all).map((x) => x.id))].sort(
+      (a, b) => a.localeCompare(b),
+    );
     if (!list.length) throw Error("接口成功，但没有返回适合当前节点的模型");
     n.models = list;
     n.model =
@@ -591,13 +602,18 @@ async function loadModels() {
         : list[0];
     n.endpoint = apiEndpoint(n);
     sessionStorage.setItem("key_" + n.provider, key);
-    sessionStorage.setItem(
-      "models_" + n.provider + "_" + n.type,
-      JSON.stringify(list),
-    );
+    Object.entries(groups).forEach(([type, models]) => {
+      const ids = [...new Set(models.map((x) => x.id))].sort((a, b) =>
+        a.localeCompare(b),
+      );
+      sessionStorage.setItem(
+        "models_" + n.provider + "_" + type,
+        JSON.stringify(ids),
+      );
+    });
     renderInspector();
     $("#output").textContent =
-      `连接成功：当前节点已加载 ${list.length} 个可用模型。`;
+      `连接成功：平台共返回 ${all.length} 个模型，当前${n.type === "image" ? "生图" : n.type === "video" ? "生视频" : "文本"}节点显示 ${list.length} 个。`;
     save();
     toast(`已加载 ${list.length} 个模型`);
   } catch (e) {
@@ -762,25 +778,6 @@ renderInspector = function () {
       ? `视频生成成功\n${n.videoMeta || ""}\n已加入左侧“资产”列表。`
       : n.output || "尚未运行";
   } else $("#videoPreview").hidden = true;
-};
-const baseLoadModels = loadModels;
-loadModels = async function () {
-  const n = state.nodes.find((x) => x.id === state.selected);
-  if (n?.type !== "video") return baseLoadModels();
-  const key = $("#apiKey").value;
-  if (!key) {
-    $("#output").textContent = "请先填写 API Key。";
-    return toast("请先填写 API Key");
-  }
-  n.models = ["Wan-AI/Wan2.2-I2V-A14B", "Wan-AI/Wan2.2-T2V-A14B"];
-  n.model = n.model && n.models.includes(n.model) ? n.model : n.models[0];
-  n.endpoint = apiEndpoint(n);
-  sessionStorage.setItem("key_" + n.provider, key);
-  n.status = "等待";
-  n.output = "连接成功：已加载 2 个视频模型。";
-  save();
-  render();
-  toast("视频接口已就绪");
 };
 const baseRunNode = runNode;
 runNode = async function (n) {
