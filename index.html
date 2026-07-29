@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>成成的工作台</title><link rel="stylesheet" href="styles.css?v=6.5"></head>
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>成成的工作台</title><link rel="stylesheet" href="styles.css?v=6.6"></head>
 <body><div id="app">
 <nav class="rail"><div class="logo">成</div><button data-tab="project" title="项目">▣</button><button data-tab="assets" title="资产">◇</button><button data-tab="tasks" title="任务">≡</button><span></span><button id="settings" title="模型 API">⚙</button></nav>
 <header><div><strong>成成的工作台</strong><small>自由搭建你的 AI 视频流水线</small></div><div class="header-actions"><span id="status">V6 · 本地自动保存</span><button id="import">导入</button><button id="export">导出</button><button class="primary" id="runAll">▶ 运行全部</button></div></header>
@@ -12,4 +12,4 @@
 </div>
 <dialog id="nodeDialog"><h3 id="nodeDialogTitle">添加节点</h3><p id="nodeDialogHint">选择要添加的节点类型</p><div id="nodeCatalog"></div><button id="cancelNode">取消</button></dialog>
 <dialog id="apiDialog"><h3>模型 API 中心</h3><p>密钥仅保存在当前浏览器会话，关闭浏览器后清除。</p><div id="apiList"></div><button onclick="this.closest('dialog').close()">完成</button></dialog>
-<input id="projectFile" type="file" accept=".json" hidden><input id="assetFile" type="file" accept="image/*" hidden><div id="toast"></div><script src="app.js?v=6.5.2"></script></body></html>
+<input id="projectFile" type="file" accept=".json" hidden><input id="assetFile" type="file" accept="image/*" hidden><div id="toast"></div><script src="app.js?v=6.6"></script></body></html>
