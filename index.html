@@ -17,7 +17,7 @@ html,body,.app{background:#cfd5d7}.rail,.top,.side,.inspector{background:#e7ebec
 </style><style>
 .app{grid-template-columns:52px 195px minmax(580px,1fr) 270px}.rail{padding-top:10px}.mark{width:34px;height:34px}.iconbtn{width:34px;height:34px}.side-body{padding:10px}.inspector{padding:12px}.node{width:205px}.canvas{width:1500px}.field textarea{height:70px}.castbar{right:10px}.side-panel[hidden]{display:none}.task-row{display:flex;justify-content:space-between;gap:8px;padding:9px 5px;border-bottom:1px solid var(--line);font-size:9px}.task-row span:last-child{color:var(--cyan)}
 </style></head>
-<body>
+<body><div id="runtimeError" style="display:none;position:fixed;z-index:9999;left:12px;right:12px;top:12px;padding:12px;background:#8d2929;color:white;font:13px Microsoft YaHei;border-radius:5px"></div>
 <div class="app">
   <nav class="rail"><div class="mark">界</div><button class="iconbtn on" title="制作画布">⌘</button><button class="iconbtn" title="项目">▣</button><button class="iconbtn" title="素材">◇</button><button class="iconbtn" title="任务队列">≡</button><button class="iconbtn bottom" id="apiBtn" title="模型与 API">⚙</button></nav>
   <header class="top"><div><div class="project-name">成成的工作台</div><div class="crumb">创意 → 剧本 → 分镜 → 角色 → 画面 → 视频</div></div><div class="grow"></div><div class="status hide-mobile"><span class="dot"></span><span id="saveState">已保存在本机</span></div><button class="btn hide-mobile" id="importBtn">导入</button><button class="btn hide-mobile" id="exportBtn">导出项目</button><button class="btn primary" id="runAll">▶ 自动生成本集</button></header>
@@ -44,6 +44,7 @@ html,body,.app{background:#cfd5d7}.rail,.top,.side,.inspector{background:#e7ebec
 <input type="file" id="fileInput" accept=".json" hidden><input type="file" id="imageInput" accept="image/*" hidden>
 <div class="toast" id="toast"></div>
 <script>
+window.addEventListener('error',e=>{const b=document.getElementById('runtimeError');if(b){b.style.display='block';b.textContent='页面脚本错误：'+e.message+'（请把这行文字发给我）'}});
 const providers={lingke:{name:'灵客 AI 中转',type:'multi',models:['填写 Key 后读取模型'],endpoint:'https://api.lingkeai.ai/v1/chat/completions',cost:'中转计费'},deepseek:{name:'DeepSeek',type:'text',models:['deepseek-chat','deepseek-reasoner'],endpoint:'https://api.deepseek.com/chat/completions',cost:'付费'},openai:{name:'OpenAI',type:'multi',models:['gpt-5-mini','gpt-4.1-mini','gpt-image-1'],endpoint:'https://api.openai.com/v1/chat/completions',cost:'付费'},silicon:{name:'硅基流动',type:'multi',models:['Qwen/Qwen3-8B','black-forest-labs/FLUX.1-schnell'],endpoint:'https://api.siliconflow.cn/v1/chat/completions',cost:'含免费额度'},dashscope:{name:'阿里云百炼',type:'multi',models:['qwen-plus','wanx2.1-t2i-turbo','wan2.1-i2v-turbo'],endpoint:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',cost:'付费'},volc:{name:'火山方舟',type:'multi',models:['doubao-seed-1-6','doubao-seedream-4-0','doubao-seedance-1-5-pro'],endpoint:'https://ark.cn-beijing.volces.com/api/v3/chat/completions',cost:'付费'},kling:{name:'可灵 AI',type:'video',models:['kling-v2-6','kling-v2-master'],endpoint:'https://api-beijing.klingai.com/v1/videos/image2video',cost:'付费'},local:{name:'本机浏览器',type:'video',models:['本地分镜合成-WebM'],endpoint:'',cost:'免费离线'},runway:{name:'Runway',type:'video',models:['gen4_turbo','veo3.1'],endpoint:'https://api.dev.runwayml.com/v1/image_to_video',cost:'付费'},custom:{name:'自定义兼容 API',type:'multi',models:['custom-model'],endpoint:'',cost:'自定义'}};
 const defaults=[
 {id:'idea',title:'一个想法',kind:'INPUT · 创意',provider:'deepseek',model:'deepseek-chat',x:70,y:130,desc:'输入题材、人物、冲突和成片时长',prompt:'将用户想法整理为清晰的创作任务书。',source:'手动输入',format:'文本'},
@@ -87,7 +88,7 @@ $('#exportBtn').onclick=()=>{syncInspector();const blob=new Blob([JSON.stringify
 $('#importBtn').onclick=()=>$('#fileInput').click();$('#fileInput').onchange=async e=>{try{state=JSON.parse(await e.target.files[0].text());save();renderAll();toast('项目已导入')}catch{toast('项目文件无效')}};
 $('#addAsset').onclick=()=>$('#imageInput').click();$('#imageInput').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader;r.onload=()=>{const old=state.assets.find(a=>String(a.id)===String(state.editCast));if(old)old.image=r.result;else state.assets.push({id:Date.now(),name:'新人物',note:'待设置身份',image:r.result});state.editCast=null;save();renderAssets();renderCast()};r.readAsDataURL(f)};$('#castAdd').onclick=()=>{state.editCast=null;$('#imageInput').click()};
 $('#addNode').onclick=()=>{const id='custom_'+Date.now();state.nodes.push({id,title:'自定义节点',kind:'CUSTOM · 工具',provider:'custom',model:'custom-model',x:160,y:580,desc:'可配置任意兼容 API',prompt:'',source:'手动输入',format:'JSON'});state.selected=id;save();renderAll()};
-function renderAll(){renderNodes();renderInspector();renderAssets();renderCast();renderShots()}renderAll();
+function renderAll(){renderNodes();renderInspector();renderAssets();renderCast();renderShots()}renderAll();document.getElementById('saveState').textContent='V4 已加载 · 可操作';document.body.dataset.ready='true';
 </script>
 </body>
 </html>
